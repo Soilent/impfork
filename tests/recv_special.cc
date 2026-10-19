@@ -291,6 +291,15 @@ int main()
       test.execute( SegmentArrives {}.with_fin().with_seqno( isn + 2 ) );
       test.execute( ExpectAckno { Wrap32 { isn + 3 } } );
     }
+
+    // credit: kpa
+    {
+      TCPReceiverTestHarness test { "first SYN wins", 10 };
+      test.execute( SegmentArrives {}.with_syn().with_seqno( 100 ) );
+      test.execute( SegmentArrives {}.with_syn().with_seqno( 200 ) );
+      test.execute( SegmentArrives {}.with_seqno( 101 ).with_data( "a" ) );
+      test.execute( ExpectAckno { Wrap32 { 102 } } );
+    }
   } catch ( const exception& e ) {
     cerr << e.what() << "\n";
     return 1;
